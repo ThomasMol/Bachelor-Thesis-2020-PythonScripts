@@ -129,5 +129,6 @@ dmypy.json
 *.dot
 *.xlsx
 boxplots/
-IS10_data
+IS10_data/
+annotations/
 
