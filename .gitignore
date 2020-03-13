@@ -123,3 +123,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#custom:
+*.png
+*.dot
+*.xlsx
+boxplots/
+IS10_data
+
