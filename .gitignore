@@ -131,4 +131,5 @@ dmypy.json
 boxplots/
 IS10_data/
 annotations/
+report.csv
 
