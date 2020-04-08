@@ -133,3 +133,8 @@ IS10_data/
 annotations/
 report.csv
 
+report_smvs_c.csv
+report_svms_c_l2_zn_rbf.csv
+report_svms_c_l2_zn.csv
+report_svms_c.csv
+report_svms.csv
