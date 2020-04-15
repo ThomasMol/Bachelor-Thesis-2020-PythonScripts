@@ -141,3 +141,4 @@ report_svms.csv
 Kernel_ELM/testing_predicted_targets_scores.csv
 Kernel_ELM/testing_predicted_targets.csv
 Kernel_ELM/beta.csv
+Kernel_ELM/report_kelm_c_linear.csv
