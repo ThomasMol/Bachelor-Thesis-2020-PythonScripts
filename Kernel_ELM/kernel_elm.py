@@ -19,49 +19,65 @@ class Extreme_Learning_Machine():
         self.param_kernel_params = kernel_params
        
 
-    def _kernel_matrix(self, training_patterns, kernel_type, kernel_param, test_patterns="training"):
-        number_training_patterns = training_patterns.shape[0]
+    def _kernelize_train(self, feature_set_train, kernel_param=[]):
+        number_of_features = feature_set_train.shape[0]
 
         # Other kernels can be added
         # Linear kernel       
-        if kernel_type == "linear":
-            if test_patterns is "training":
-                ktr = np.dot(training_patterns, training_patterns.conjugate().transpose())
-            elif test_patterns is "testing":
-                ktr = np.dot(training_patterns, test_patterns.conjugate().transpose())
+        if self.param_kernel_function == "linear":
+            ktr = np.dot(feature_set_train, feature_set_train.conjugate().transpose())
 
         return ktr
 
 
+    def _kernelize_test(self, feature_set_train,feature_set_test, kernel_param=[] ):
+        number_of_features = feature_set_train.shape[0]
+
+        # Other kernels can be added
+        # Linear kernel       
+        if self.param_kernel_function == "linear":
+            kts = np.dot(feature_set_test, feature_set_train.conjugate().transpose())
+
+        return kts
+
    
-    def fit(self, training_patterns, training_expected_targets, params=[]):
-        self.training_patterns = training_patterns
-        number_training_patterns = self.training_patterns.shape[0]
+    def train(self, X_train, y_train):
+        self.X_train = X_train
+
+        number_training_rows = self.X_train.shape[0]
+        self.training_patterns = X_train
+
+        # Creating kernels
+        kernel_training = self._kernelize_train(self.X_train)
+
+        # Regression
+        classes = np.sort(np.unique(y_train))
+        number_of_classes = np.size(classes)
         
-        # Traning phase
-        omega_train = self._kernel_matrix(self.training_patterns, self.param_kernel_function, self.param_kernel_params)
+        TM = np.zeros((number_training_rows, number_of_classes))
 
-        self.output_weight = np.linalg.solve((omega_train + np.eye(number_training_patterns)/(2 ** self.param_c)), training_expected_targets).reshape(-1,1)
+        for i in range(0,number_training_rows):
+            for j in range(0,number_of_classes):
+                if (j+1) == y_train[i]:
+                    TM[i,j] = 1 
 
-        training_predicted_targets = np.dot(omega_train, self.output_weight)
+        TM = 2*TM - 1
 
-        return training_predicted_targets
+        idenity_matrix = np.identity(number_training_rows)
+        beta = np.linalg.lstsq(((idenity_matrix/self.param_c) + kernel_training) , TM)
+        self.output_weight = beta[0]
+        return beta[0]
 
 
-    def test(self,testing_features, testing_labels, predicting=False):
+    def test(self,testing_features):
         
-        omega_test = self._kernel_matrix(self.training_patterns, self.param_kernel_function, self.param_kernel_params, testing_patterns)
+        kernel_test = self._kernelize_test(self.training_patterns, testing_features,self.param_kernel_params)
 
-        testing_predicted_targets = np.dot(omega_test.conjugate().transpose(), self.output_weight)
+        testing_predicted_targets = np.dot(kernel_test.conjugate(), self.output_weight)
 
-        return testing_predicted_targets    
+        y_argmax = []
 
+        for i in range(0, testing_predicted_targets.shape[0]):
+            y_argmax.append(testing_predicted_targets[i].argmax() + 1)
 
-
-    #def predict(self, horizon=1):
-    #    return self._ml_predict(horizon)
-
-
-
-
-
+        return y_argmax

@@ -138,3 +138,6 @@ report_svms_c_l2_zn_rbf.csv
 report_svms_c_l2_zn.csv
 report_svms_c.csv
 report_svms.csv
+Kernel_ELM/testing_predicted_targets_scores.csv
+Kernel_ELM/testing_predicted_targets.csv
+Kernel_ELM/beta.csv
