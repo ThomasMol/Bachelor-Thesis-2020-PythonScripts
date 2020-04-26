@@ -41,7 +41,7 @@ class Extreme_Learning_Machine():
         return kts
 
    
-    def train(self, X_train, y_train):
+    def train(self, X_train, y_train, weighted=False):
         self.X_train = X_train
 
         number_training_rows = self.X_train.shape[0]
@@ -50,7 +50,7 @@ class Extreme_Learning_Machine():
         # Creating kernels
         kernel_training = self._kernelize_train(self.X_train)
 
-        # Regression
+        # 
         classes = np.sort(np.unique(y_train))
         number_of_classes = np.size(classes)
         
@@ -64,7 +64,18 @@ class Extreme_Learning_Machine():
         TM = 2*TM - 1
 
         idenity_matrix = np.identity(number_training_rows)
-        beta = np.linalg.lstsq(((idenity_matrix/self.param_c) + kernel_training) , TM)
+
+        if weighted:
+            W = np.identity(number_training_rows)
+            ClassHistogram = np.histogram(y_train,bins=[1,2,3,4])[0]
+            ClassHistogram = np.divide(1,ClassHistogram)
+            for i in range(0,number_training_rows):
+                W[i,i]=ClassHistogram[y_train[i]-1]
+            
+            beta = np.linalg.lstsq(((idenity_matrix/self.param_c) + (kernel_training*W)) , TM)
+        else:
+            beta = np.linalg.lstsq(((idenity_matrix/self.param_c) + kernel_training) , TM)
+
         self.output_weight = beta[0]
         return beta[0]
 
