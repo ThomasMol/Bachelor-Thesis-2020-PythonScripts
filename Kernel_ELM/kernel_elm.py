@@ -4,7 +4,7 @@ import scipy
 
 
 class Extreme_Learning_Machine():
-    def __init__(self, kernel="linear", C=1, gamma=1, coef0=1, weighted=False):
+    def __init__(self, kernel="linear", C=1, gamma=1, coef0=1, weighted=False, model_type="classfication"):
         super(self.__class__, self).__init__()
         
         self.regressor_name = "kernel_elm"
@@ -18,6 +18,7 @@ class Extreme_Learning_Machine():
         self.param_c = C
         self.gamma = gamma
         self.coef0 = coef0
+        self.model_type = model_type
         self.weighted = weighted
 
 
@@ -54,23 +55,24 @@ class Extreme_Learning_Machine():
 
         number_training_rows = self.X_train.shape[0]
         self.training_patterns = X_train
+        idenity_matrix = np.identity(number_training_rows)
 
         # Creating kernel
         kernel_training = self._kernelize_train(self.X_train)
 
-        classes = np.sort(np.unique(y_train))
-        number_of_classes = np.size(classes)
-        
-        TM = np.zeros((number_training_rows, number_of_classes))
+        if self.model_type == "classification":
+            classes = np.sort(np.unique(y_train))
+            number_of_classes = np.size(classes)
+            TM = np.zeros((number_training_rows, number_of_classes))
+            for i in range(0,number_training_rows):
+                for j in range(0,number_of_classes):
+                    if (j+1) == y_train[i]:
+                        TM[i,j] = 1 
 
-        for i in range(0,number_training_rows):
-            for j in range(0,number_of_classes):
-                if (j+1) == y_train[i]:
-                    TM[i,j] = 1 
-
-        TM = 2*TM - 1
-
-        idenity_matrix = np.identity(number_training_rows)
+            TM = 2*TM - 1
+        elif self.model_type == "regression":
+            self.weighted = False
+            TM = y_train
 
         if self.weighted:
             W = np.identity(number_training_rows)
@@ -93,9 +95,12 @@ class Extreme_Learning_Machine():
 
         testing_predicted_targets = np.dot(kernel_test.conjugate(), self.output_weight)
 
-        y_argmax = []
+        if self.model_type == "classification":
+            y_argmax = []
 
-        for i in range(0, testing_predicted_targets.shape[0]):
-            y_argmax.append(testing_predicted_targets[i].argmax() + 1)
+            for i in range(0, testing_predicted_targets.shape[0]):
+                y_argmax.append(testing_predicted_targets[i].argmax() + 1)
 
-        return y_argmax
+            return y_argmax
+        elif self.model_type == "regression":
+            return testing_predicted_targets
