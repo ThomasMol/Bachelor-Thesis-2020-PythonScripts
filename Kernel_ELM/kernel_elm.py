@@ -39,7 +39,7 @@ class Extreme_Learning_Machine():
     def _kernelize_test(self, feature_set_train,feature_set_test):
         number_of_features = feature_set_train.shape[0]
 
-        # Linear kernel       
+        # Linear kernel
         if self.param_kernel_function == "linear":
             kts = np.dot(feature_set_test, feature_set_train.transpose())
         # Sigmoid kernel, uses linear kernel as well
